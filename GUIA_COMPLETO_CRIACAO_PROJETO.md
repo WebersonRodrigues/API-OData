@@ -8,13 +8,12 @@ Antes de começar, certifique-se de ter instalado:
 
 - **.NET 9 SDK** - [Download aqui](https://dotnet.microsoft.com/download/dotnet/9.0)
 - **PostgreSQL** - [Download aqui](https://www.postgresql.org/download/)
-- **Visual Studio 2022** ou **VS Code** com extensão C#
+- **Visual Studio** ou **VS Code** com extensão C#
 - **Git** (opcional, para controle de versão)
 
 ### Verificando as instalações:
 ```bash
 dotnet --version          # Deve mostrar versão 9.x.x
-psql --version           # Deve mostrar versão do PostgreSQL
 ```
 
 ---
