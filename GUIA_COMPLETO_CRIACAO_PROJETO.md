@@ -1224,6 +1224,6 @@ Seguindo este guia passo a passo, você terá criado uma API OData completa com:
 
 ---
 
-**Autor:** Guia criado para desenvolvimento de API OData com .NET 9  
-**Data:** 2024  
+**Autor:** Weberson Rodrigues  
+**Data:** 02/09/2025  
 **Versão:** 1.0
