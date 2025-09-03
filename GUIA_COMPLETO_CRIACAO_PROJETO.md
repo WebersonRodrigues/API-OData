@@ -498,7 +498,7 @@ CREATE USER postgres WITH PASSWORD '123456';
 GRANT ALL PRIVILEGES ON DATABASE "ODataDB" TO postgres;
 ```
 
-### Passo 9: Instalar Entity Framework Tools e criar migrations
+### Passo 10: Instalar Entity Framework Tools e criar migrations
 
 ```bash
 # Instalar EF Tools globalmente
@@ -1206,6 +1206,62 @@ Seguindo este guia passo a passo, você terá criado uma API OData completa com:
 ✅ **Controllers OData** com CRUD completo  
 ✅ **Testes unitários** e de integração  
 ✅ **Suporte completo a queries OData** ($filter, $expand, $orderby, etc.)
+
+## 📖 Glossário OData - Palavras Reservadas
+### 🔍 **Operadores de Filtro ($filter)**
+
+| Operador | Significado | Exemplo | Descrição |
+|----------|-------------|---------|------------|
+| `eq` | **Equal** (igual) | `Preco eq 1000` | Preço igual a 1000 |
+| `ne` | **Not Equal** (diferente) | `Categoria ne 'Livros'` | Categoria diferente de 'Livros' |
+| `gt` | **Greater Than** (maior que) | `Preco gt 500` | Preço maior que 500 |
+| `ge` | **Greater or Equal** (maior ou igual) | `Preco ge 500` | Preço maior ou igual a 500 |
+| `lt` | **Less Than** (menor que) | `Preco lt 1000` | Preço menor que 1000 |
+| `le` | **Less or Equal** (menor ou igual) | `Preco le 1000` | Preço menor ou igual a 1000 |
+| `and` | **E** (operador lógico) | `Preco gt 100 and Preco lt 500` | Preço entre 100 e 500 |
+| `or` | **OU** (operador lógico) | `Categoria eq 'Livros' or Categoria eq 'Games'` | Categoria Livros OU Games |
+| `not` | **NÃO** (negação) | `not (Preco gt 1000)` | NÃO preço maior que 1000 |
+
+### 📝 **Funções de String**
+
+| Função | Significado | Exemplo | Descrição |
+|--------|-------------|---------|------------|
+| `contains` | **Contém** | `contains(Nome,'Tech')` | Nome contém a palavra 'Tech' |
+| `startswith` | **Começa com** | `startswith(Telefone,'(11)')` | Telefone começa com '(11)' |
+| `endswith` | **Termina com** | `endswith(Email,'.com')` | Email termina com '.com' |
+| `tolower` | **Minúsculo** | `tolower(Nome)` | Converte nome para minúsculo |
+| `toupper` | **Maiúsculo** | `toupper(Nome)` | Converte nome para maiúsculo |
+| `length` | **Tamanho** | `length(Nome) gt 10` | Nome com mais de 10 caracteres |
+
+### 📅 **Funções de Data**
+
+| Função | Significado | Exemplo | Descrição |
+|--------|-------------|---------|------------|
+| `year` | **Ano** | `year(DataCriacao) eq 2024` | Ano da data de criação é 2024 |
+| `month` | **Mês** | `month(DataCriacao) eq 12` | Mês da data de criação é dezembro |
+| `day` | **Dia** | `day(DataCriacao) eq 15` | Dia da data de criação é 15 |
+| `hour` | **Hora** | `hour(DataCriacao) eq 14` | Hora da data de criação é 14h |
+| `minute` | **Minuto** | `minute(DataCriacao) eq 30` | Minuto da data de criação é 30 |
+
+### 🎛️ **Parâmetros de Query**
+
+| Parâmetro | Significado | Exemplo | Descrição |
+|-----------|-------------|---------|------------|
+| `$filter` | **Filtrar** | `$filter=Preco gt 1000` | Filtra registros por condição |
+| `$orderby` | **Ordenar** | `$orderby=Preco desc` | Ordena por preço decrescente |
+| `$top` | **Primeiros N** | `$top=5` | Retorna apenas os primeiros 5 registros |
+| `$skip` | **Pular N** | `$skip=10` | Pula os primeiros 10 registros |
+| `$select` | **Selecionar campos** | `$select=Nome,Preco` | Retorna apenas os campos Nome e Preço |
+| `$expand` | **Expandir relacionamentos** | `$expand=Loja` | Inclui dados da entidade relacionada Loja |
+| `$count` | **Contar registros** | `$count=true` | Inclui contagem total de registros |
+
+### 📊 **Modificadores de Ordenação**
+
+| Modificador | Significado | Exemplo | Descrição |
+|-------------|-------------|---------|------------|
+| `asc` | **Ascendente** (padrão) | `$orderby=Nome asc` | Ordem crescente (A-Z, 1-9) |
+| `desc` | **Descendente** | `$orderby=Preco desc` | Ordem decrescente (Z-A, 9-1) |
+
 
 ### Próximos passos sugeridos:
 - Adicionar autenticação e autorização
