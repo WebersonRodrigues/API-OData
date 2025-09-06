@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" 
+  xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="ODataAPI.Models" 
+      xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Empresa">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Nome" Type="Edm.String" Nullable="false" />
+        <Property Name="CNPJ" Type="Edm.String" Nullable="false" />
+        <Property Name="Endereco" Type="Edm.String" Nullable="false" />
+        <Property Name="DataCriacao" Type="Edm.DateTimeOffset" Nullable="false" />
+        <NavigationProperty Name="Lojas" Type="Collection(ODataAPI.Models.Loja)" />
+      </EntityType>
+      <EntityType Name="Loja">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Nome" Type="Edm.String" Nullable="false" />
+        <Property Name="Endereco" Type="Edm.String" Nullable="false" />
+        <Property Name="Telefone" Type="Edm.String" Nullable="false" />
+        <Property Name="DataAbertura" Type="Edm.DateTimeOffset" Nullable="false" />
+        <Property Name="EmpresaId" Type="Edm.Int32" Nullable="false" />
+        <NavigationProperty Name="Empresa" Type="ODataAPI.Models.Empresa" Nullable="false">
+          <ReferentialConstraint Property="EmpresaId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="Produtos" Type="Collection(ODataAPI.Models.Produto)" />
+      </EntityType>
+      <EntityType Name="Produto">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Nome" Type="Edm.String" Nullable="false" />
+        <Property Name="Descricao" Type="Edm.String" Nullable="false" />
+        <Property Name="Preco" Type="Edm.Decimal" Nullable="false" Scale="variable" />
+        <Property Name="QuantidadeEstoque" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Categoria" Type="Edm.String" Nullable="false" />
+        <Property Name="DataCadastro" Type="Edm.DateTimeOffset" Nullable="false" />
+        <Property Name="LojaId" Type="Edm.Int32" Nullable="false" />
+        <NavigationProperty Name="Loja" Type="ODataAPI.Models.Loja" Nullable="false">
+          <ReferentialConstraint Property="LojaId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="PedidoItens" Type="Collection(ODataAPI.Models.PedidoItem)" />
+        <NavigationProperty Name="Avaliacoes" Type="Collection(ODataAPI.Models.Avaliacao)" />
+      </EntityType>
+      <EntityType Name="Pedido">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="NomeCliente" Type="Edm.String" Nullable="false" />
+        <Property Name="EmailCliente" Type="Edm.String" Nullable="false" />
+        <Property Name="ValorTotal" Type="Edm.Decimal" Nullable="false" Scale="variable" />
+        <Property Name="DataPedido" Type="Edm.DateTimeOffset" Nullable="false" />
+        <Property Name="Status" Type="Edm.String" Nullable="false" />
+        <NavigationProperty Name="PedidoItens" Type="Collection(ODataAPI.Models.PedidoItem)" />
+        <NavigationProperty Name="Avaliacoes" Type="Collection(ODataAPI.Models.Avaliacao)" />
+      </EntityType>
+      <EntityType Name="PedidoItem">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Quantidade" Type="Edm.Int32" Nullable="false" />
+        <Property Name="PrecoUnitario" Type="Edm.Decimal" Nullable="false" Scale="variable" />
+        <Property Name="Subtotal" Type="Edm.Decimal" Nullable="false" Scale="variable" />
+        <Property Name="PedidoId" Type="Edm.Int32" Nullable="false" />
+        <Property Name="ProdutoId" Type="Edm.Int32" Nullable="false" />
+        <NavigationProperty Name="Pedido" Type="ODataAPI.Models.Pedido" Nullable="false">
+          <ReferentialConstraint Property="PedidoId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="Produto" Type="ODataAPI.Models.Produto" Nullable="false">
+          <ReferentialConstraint Property="ProdutoId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="DetalhesItem" Type="Collection(ODataAPI.Models.DetalheItem)" />
+      </EntityType>
+      <EntityType Name="Avaliacao">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Nota" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Comentario" Type="Edm.String" Nullable="false" />
+        <Property Name="NomeAvaliador" Type="Edm.String" Nullable="false" />
+        <Property Name="DataAvaliacao" Type="Edm.DateTimeOffset" Nullable="false" />
+        <Property Name="ProdutoId" Type="Edm.Int32" Nullable="false" />
+        <Property Name="PedidoId" Type="Edm.Int32" Nullable="false" />
+        <NavigationProperty Name="Produto" Type="ODataAPI.Models.Produto" Nullable="false">
+          <ReferentialConstraint Property="ProdutoId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="Pedido" Type="ODataAPI.Models.Pedido" Nullable="false">
+          <ReferentialConstraint Property="PedidoId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="Respostas" Type="Collection(ODataAPI.Models.RespostaAvaliacao)" />
+      </EntityType>
+      <EntityType Name="DetalheItem">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="TipoDetalhe" Type="Edm.String" Nullable="false" />
+        <Property Name="Valor" Type="Edm.String" Nullable="false" />
+        <Property Name="Observacoes" Type="Edm.String" Nullable="false" />
+        <Property Name="DataCriacao" Type="Edm.DateTimeOffset" Nullable="false" />
+        <Property Name="PedidoItemId" Type="Edm.Int32" Nullable="false" />
+        <NavigationProperty Name="PedidoItem" Type="ODataAPI.Models.PedidoItem" Nullable="false">
+          <ReferentialConstraint Property="PedidoItemId" ReferencedProperty="Id" />
+        </NavigationProperty>
+      </EntityType>
+      <EntityType Name="RespostaAvaliacao">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Resposta" Type="Edm.String" Nullable="false" />
+        <Property Name="NomeResponsavel" Type="Edm.String" Nullable="false" />
+        <Property Name="CargoResponsavel" Type="Edm.String" Nullable="false" />
+        <Property Name="DataResposta" Type="Edm.DateTimeOffset" Nullable="false" />
+        <Property Name="AvaliacaoId" Type="Edm.Int32" Nullable="false" />
+        <NavigationProperty Name="Avaliacao" Type="ODataAPI.Models.Avaliacao" Nullable="false">
+          <ReferentialConstraint Property="AvaliacaoId" ReferencedProperty="Id" />
+        </NavigationProperty>
+      </EntityType>
+    </Schema>
+    <Schema Namespace="Default" 
+      xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityContainer Name="Container">
+        <EntitySet Name="Empresas" EntityType="ODataAPI.Models.Empresa">
+          <NavigationPropertyBinding Path="Lojas" Target="Lojas" />
+        </EntitySet>
+        <EntitySet Name="Lojas" EntityType="ODataAPI.Models.Loja">
+          <NavigationPropertyBinding Path="Empresa" Target="Empresas" />
+          <NavigationPropertyBinding Path="Produtos" Target="Produtos" />
+        </EntitySet>
+        <EntitySet Name="Produtos" EntityType="ODataAPI.Models.Produto">
+          <NavigationPropertyBinding Path="Avaliacoes" Target="Avaliacoes" />
+          <NavigationPropertyBinding Path="Loja" Target="Lojas" />
+          <NavigationPropertyBinding Path="PedidoItens" Target="PedidoItens" />
+        </EntitySet>
+        <EntitySet Name="Pedidos" EntityType="ODataAPI.Models.Pedido">
+          <NavigationPropertyBinding Path="Avaliacoes" Target="Avaliacoes" />
+          <NavigationPropertyBinding Path="PedidoItens" Target="PedidoItens" />
+        </EntitySet>
+        <EntitySet Name="PedidoItens" EntityType="ODataAPI.Models.PedidoItem">
+          <NavigationPropertyBinding Path="DetalhesItem" Target="DetalhesItem" />
+          <NavigationPropertyBinding Path="Pedido" Target="Pedidos" />
+          <NavigationPropertyBinding Path="Produto" Target="Produtos" />
+        </EntitySet>
+        <EntitySet Name="Avaliacoes" EntityType="ODataAPI.Models.Avaliacao">
+          <NavigationPropertyBinding Path="Pedido" Target="Pedidos" />
+          <NavigationPropertyBinding Path="Produto" Target="Produtos" />
+          <NavigationPropertyBinding Path="Respostas" Target="RespostasAvaliacao" />
+        </EntitySet>
+        <EntitySet Name="DetalhesItem" EntityType="ODataAPI.Models.DetalheItem">
+          <NavigationPropertyBinding Path="PedidoItem" Target="PedidoItens" />
+        </EntitySet>
+        <EntitySet Name="RespostasAvaliacao" EntityType="ODataAPI.Models.RespostaAvaliacao">
+          <NavigationPropertyBinding Path="Avaliacao" Target="Avaliacoes" />
+        </EntitySet>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

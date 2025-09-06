@@ -1,0 +1,90 @@
+@URL = http://localhost:5295
+
+#Verificar se a API está funcionando
+GET {{URL}}/odata/$metadata
+Accept: application/json
+###
+
+#Listar Todas as Empresas
+GET {{URL}}/odata/Empresas
+Accept: application/json
+###
+
+#Listar Todas as Lojas
+GET {{URL}}/odata/Lojas
+Accept: application/json
+###
+
+#Listar Todas as Lojas
+GET {{URL}}/odata/Produtos
+Accept: application/json
+###
+
+
+GET {{URL}}/odata/Empresas?$expand=Lojas($expand=Produtos;$count=true)&$select=Nome,CNPJ
+
+###
+
+POST {{URL}}/odata/Empresas
+Content-Type: application/json
+
+{
+  "Nome": "Inovação Tech Teste",
+  "CNPJ": "33.444.555/0001-66",
+  "Endereco": "Av. Inovação, 1000",
+  "DataCriacao": "2024-01-15T00:00:00"
+}
+
+###
+
+POST {{URL}}/odata/Lojas
+Content-Type: application/json
+
+{
+  "Nome": "Tech Store Campinas",
+  "Endereco": "Shopping Campinas",
+  "Telefone": "(19) 3333-4444",
+  "DataAbertura": "2024-02-01T00:00:00",
+  "EmpresaId": 1
+}
+
+
+###
+
+POST {{URL}}/odata/Produtos
+Content-Type: application/json
+
+{
+  "Nome": "Tablet Samsung",
+  "Descricao": "Tablet Android 10 polegadas",
+  "Preco": 899.99,
+  "QuantidadeEstoque": 30,
+  "Categoria": "Eletrônicos",
+  "DataCadastro": "2024-01-20T00:00:00",
+  "LojaId": 99
+}
+
+###
+
+PATCH  {{URL}}/odata/Empresas(4)
+Content-Type: application/json
+
+{
+  "Nome": "WS Tecnologia Atualizada",
+  "CNPJ": "33.321.456/0001-88"
+}
+
+###
+PUT {{URL}}/odata/Empresas(4)
+Content-Type: application/json
+
+{
+  "Nome": "WS Tecnologia Atualizada PUT",
+  "CNPJ": "33.444.555/0001-66",
+  "Endereco": "Av. Inovação, 2000",
+  "DataCriacao": "2024-01-18T00:00:00"
+}
+
+###
+
+DELETE {{URL}}/odata/Empresas(4)

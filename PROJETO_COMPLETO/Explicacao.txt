@@ -1,0 +1,26 @@
+Exemplo
+
+Get() -> responder  GET /Entidade
+Get(key) -> responder  GET /Entidade(1)
+Post() -> responder  Post /Entidade -> Post([FromBody] Entidade entidade)
+Put(key) -> responder  Put /Entidade(1)
+Delete(key) -> responder  Delete /Entidade(1)
+Patch(key) -> responder Patch /Entidade(1)
+
+OData um cara chamado Delta<T>
+
+Patch url/odata/Empresa(5)
+Contenti-Tyte: application/json
+
+{
+    "nome": "Nova empresa",
+    "ativo": true
+}
+
+
+Em algus casos as emrpesas criam controllers distintos.
+
+CQRS >> 
+Queries: ControllherOData
+Mutations: ControlherBase
+
