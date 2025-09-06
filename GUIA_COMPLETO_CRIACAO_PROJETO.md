@@ -893,267 +893,8 @@ namespace ODataAPI.Controllers
 
 ## 🧪 PARTE 8: Configuração dos Testes
 
-### Passo 12: Criar TestWebApplicationFactory.cs
-```csharp
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using ODataAPI.Data;
+**IMPORTANTE** Utilize o GUIA_TESTES.md para criação dos testes de integração.
 
-namespace ODataAPI.Tests
-{
-    public class TestWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
-    {
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            builder.ConfigureServices(services =>
-            {
-                // Remove o DbContext existente
-                var descriptor = services.SingleOrDefault(
-                    d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
-                if (descriptor != null)
-                {
-                    services.Remove(descriptor);
-                }
-
-                // Adiciona DbContext em memória para testes
-                services.AddDbContext<ApplicationDbContext>(options =>
-                {
-                    options.UseInMemoryDatabase("InMemoryDbForTesting");
-                });
-
-                // Cria o banco de dados em memória
-                var sp = services.BuildServiceProvider();
-                using var scope = sp.CreateScope();
-                var scopedServices = scope.ServiceProvider;
-                var db = scopedServices.GetRequiredService<ApplicationDbContext>();
-                db.Database.EnsureCreated();
-            });
-        }
-    }
-}
-```
-
-### Passo 13: Criar testes de integração
-```csharp
-using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using ODataAPI.Data;
-using ODataAPI.Models;
-using System.Net.Http.Json;
-
-namespace ODataAPI.Tests
-{
-    public class IntegrationTests : IClassFixture<TestWebApplicationFactory<Program>>
-    {
-        private readonly HttpClient _client;
-        private readonly TestWebApplicationFactory<Program> _factory;
-
-        public IntegrationTests(TestWebApplicationFactory<Program> factory)
-        {
-            _factory = factory;
-            _client = _factory.CreateClient();
-        }
-
-        [Fact]
-        public async Task Get_Empresas_ReturnsSuccessAndCorrectContentType()
-        {
-            // Act
-            var response = await _client.GetAsync("/odata/Empresas");
-
-            // Assert
-            response.EnsureSuccessStatusCode();
-            response.Content.Headers.ContentType?.ToString().Should().Contain("application/json");
-        }
-
-        [Fact]
-        public async Task Get_Produtos_ReturnsSuccessAndCorrectContentType()
-        {
-            // Act
-            var response = await _client.GetAsync("/odata/Produtos");
-
-            // Assert
-            response.EnsureSuccessStatusCode();
-            response.Content.Headers.ContentType?.ToString().Should().Contain("application/json");
-        }
-
-        [Fact]
-        public async Task Post_Empresa_CreatesNewEmpresa()
-        {
-            // Arrange
-            var novaEmpresa = new Empresa
-            {
-                Nome = "Teste Empresa",
-                CNPJ = "11.111.111/0001-11",
-                Endereco = "Rua Teste, 123",
-                DataCriacao = DateTime.UtcNow
-            };
-
-            // Act
-            var response = await _client.PostAsJsonAsync("/odata/Empresas", novaEmpresa);
-
-            // Assert
-            response.EnsureSuccessStatusCode();
-        }
-
-        [Fact]
-        public async Task OData_Filter_Works()
-        {
-            // Act
-            var response = await _client.GetAsync("/odata/Produtos?$filter=Preco gt 1000");
-
-            // Assert
-            response.EnsureSuccessStatusCode();
-        }
-
-        [Fact]
-        public async Task OData_Expand_Works()
-        {
-            // Act
-            var response = await _client.GetAsync("/odata/Lojas?$expand=Empresa,Produtos");
-
-            // Assert
-            response.EnsureSuccessStatusCode();
-        }
-    }
-}
-```
-
-### Passo 14: Criar testes unitários dos controllers
-```csharp
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using ODataAPI.Controllers;
-using ODataAPI.Data;
-using ODataAPI.Models;
-
-namespace ODataAPI.Tests
-{
-    public class ControllerTests
-    {
-        private ApplicationDbContext GetInMemoryContext()
-        {
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
-            var context = new ApplicationDbContext(options);
-            context.Database.EnsureCreated();
-            return context;
-        }
-
-        [Fact]
-        public void EmpresasController_Get_ReturnsAllEmpresas()
-        {
-            // Arrange
-            using var context = GetInMemoryContext();
-            var controller = new EmpresasController(context);
-
-            // Act
-            var result = controller.Get();
-
-            // Assert
-            result.Should().NotBeNull();
-            result.Count().Should().BeGreaterThan(0);
-        }
-
-        [Fact]
-        public void ProdutosController_Get_ReturnsAllProdutos()
-        {
-            // Arrange
-            using var context = GetInMemoryContext();
-            var controller = new ProdutosController(context);
-
-            // Act
-            var result = controller.Get();
-
-            // Assert
-            result.Should().NotBeNull();
-            result.Count().Should().BeGreaterThan(0);
-        }
-
-        [Fact]
-        public async Task EmpresasController_Post_CreatesNewEmpresa()
-        {
-            // Arrange
-            using var context = GetInMemoryContext();
-            var controller = new EmpresasController(context);
-            var novaEmpresa = new Empresa
-            {
-                Nome = "Nova Empresa",
-                CNPJ = "22.222.222/0001-22",
-                Endereco = "Nova Rua, 456",
-                DataCriacao = DateTime.UtcNow
-            };
-
-            // Act
-            var result = await controller.Post(novaEmpresa);
-
-            // Assert
-            result.Should().NotBeNull();
-            context.Empresas.Should().Contain(e => e.Nome == "Nova Empresa");
-        }
-    }
-}
-```
-
----
-
-## 🚀 PARTE 9: Execução e Testes
-
-### Passo 15: Executar o projeto
-
-```bash
-# Navegar para o projeto principal
-cd ODataAPI
-
-# Executar a aplicação
-dotnet run
-```
-
-### Passo 16: Testar os endpoints
-
-A API estará disponível em: `https://localhost:5001` ou `http://localhost:5000`
-
-#### Exemplos de URLs para testar:
-
-**Básicas:**
-- `GET /odata/Empresas` - Listar todas as empresas
-- `GET /odata/Lojas` - Listar todas as lojas
-- `GET /odata/Produtos` - Listar todos os produtos
-
-**Com filtros OData:**
-- `GET /odata/Produtos?$filter=Preco gt 1000` - Produtos com preço > 1000
-- `GET /odata/Produtos?$filter=Categoria eq 'Eletrônicos'` - Produtos eletrônicos
-- `GET /odata/Lojas?$filter=EmpresaId eq 1` - Lojas da empresa 1
-
-**Com expansão:**
-- `GET /odata/Lojas?$expand=Empresa` - Lojas com dados da empresa
-- `GET /odata/Produtos?$expand=Loja` - Produtos com dados da loja
-- `GET /odata/Lojas?$expand=Empresa,Produtos` - Lojas com empresa e produtos
-
-**Com ordenação:**
-- `GET /odata/Produtos?$orderby=Preco desc` - Produtos por preço decrescente
-- `GET /odata/Empresas?$orderby=DataCriacao` - Empresas por data de criação
-
-### Passo 17: Executar os testes
-
-```bash
-# Navegar para o projeto de testes
-cd ../ODataAPI.Tests
-
-# Executar todos os testes
-dotnet test
-
-# Executar testes com detalhes
-dotnet test --verbosity normal
-
-# Executar testes com cobertura
-dotnet test --collect:"XPlat Code Coverage"
-```
-
----
 
 ## 📁 PARTE 10: Estrutura Final do Projeto
 
@@ -1169,6 +910,9 @@ ODataProject/
 │   │   └── ProdutosController.cs
 │   ├── Data/
 │   │   └── ApplicationDbContext.cs
+│   ├── ModelBinders/
+│   │   └── ODataModelBinder.cs
+│   │   └── ODataModelBinderProvider.cs
 │   ├── Models/
 │   │   ├── Empresa.cs
 │   │   ├── Loja.cs
@@ -1187,9 +931,7 @@ ODataProject/
 │   ├── ODataAPI.csproj
 │   └── Program.cs
 └── ODataAPI.Tests/
-    ├── ControllerTests.cs
-    ├── IntegrationTests.cs
-    ├── TestWebApplicationFactory.cs
+    ├── EmpresasIntegrationTests.cs
     └── ODataAPI.Tests.csproj
 ```
 
@@ -1204,72 +946,20 @@ Seguindo este guia passo a passo, você terá criado uma API OData completa com:
 ✅ **Migrations** para criação do banco  
 ✅ **Dados de exemplo** (seed data)  
 ✅ **Controllers OData** com CRUD completo  
-✅ **Testes unitários** e de integração  
+✅ **Testes** de integração  
 ✅ **Suporte completo a queries OData** ($filter, $expand, $orderby, etc.)
 
-## 📖 Glossário OData - Palavras Reservadas
-### 🔍 **Operadores de Filtro ($filter)**
-
-| Operador | Significado | Exemplo | Descrição |
-|----------|-------------|---------|------------|
-| `eq` | **Equal** (igual) | `Preco eq 1000` | Preço igual a 1000 |
-| `ne` | **Not Equal** (diferente) | `Categoria ne 'Livros'` | Categoria diferente de 'Livros' |
-| `gt` | **Greater Than** (maior que) | `Preco gt 500` | Preço maior que 500 |
-| `ge` | **Greater or Equal** (maior ou igual) | `Preco ge 500` | Preço maior ou igual a 500 |
-| `lt` | **Less Than** (menor que) | `Preco lt 1000` | Preço menor que 1000 |
-| `le` | **Less or Equal** (menor ou igual) | `Preco le 1000` | Preço menor ou igual a 1000 |
-| `and` | **E** (operador lógico) | `Preco gt 100 and Preco lt 500` | Preço entre 100 e 500 |
-| `or` | **OU** (operador lógico) | `Categoria eq 'Livros' or Categoria eq 'Games'` | Categoria Livros OU Games |
-| `not` | **NÃO** (negação) | `not (Preco gt 1000)` | NÃO preço maior que 1000 |
-
-### 📝 **Funções de String**
-
-| Função | Significado | Exemplo | Descrição |
-|--------|-------------|---------|------------|
-| `contains` | **Contém** | `contains(Nome,'Tech')` | Nome contém a palavra 'Tech' |
-| `startswith` | **Começa com** | `startswith(Telefone,'(11)')` | Telefone começa com '(11)' |
-| `endswith` | **Termina com** | `endswith(Email,'.com')` | Email termina com '.com' |
-| `tolower` | **Minúsculo** | `tolower(Nome)` | Converte nome para minúsculo |
-| `toupper` | **Maiúsculo** | `toupper(Nome)` | Converte nome para maiúsculo |
-| `length` | **Tamanho** | `length(Nome) gt 10` | Nome com mais de 10 caracteres |
-
-### 📅 **Funções de Data**
-
-| Função | Significado | Exemplo | Descrição |
-|--------|-------------|---------|------------|
-| `year` | **Ano** | `year(DataCriacao) eq 2024` | Ano da data de criação é 2024 |
-| `month` | **Mês** | `month(DataCriacao) eq 12` | Mês da data de criação é dezembro |
-| `day` | **Dia** | `day(DataCriacao) eq 15` | Dia da data de criação é 15 |
-| `hour` | **Hora** | `hour(DataCriacao) eq 14` | Hora da data de criação é 14h |
-| `minute` | **Minuto** | `minute(DataCriacao) eq 30` | Minuto da data de criação é 30 |
-
-### 🎛️ **Parâmetros de Query**
-
-| Parâmetro | Significado | Exemplo | Descrição |
-|-----------|-------------|---------|------------|
-| `$filter` | **Filtrar** | `$filter=Preco gt 1000` | Filtra registros por condição |
-| `$orderby` | **Ordenar** | `$orderby=Preco desc` | Ordena por preço decrescente |
-| `$top` | **Primeiros N** | `$top=5` | Retorna apenas os primeiros 5 registros |
-| `$skip` | **Pular N** | `$skip=10` | Pula os primeiros 10 registros |
-| `$select` | **Selecionar campos** | `$select=Nome,Preco` | Retorna apenas os campos Nome e Preço |
-| `$expand` | **Expandir relacionamentos** | `$expand=Loja` | Inclui dados da entidade relacionada Loja |
-| `$count` | **Contar registros** | `$count=true` | Inclui contagem total de registros |
-
-### 📊 **Modificadores de Ordenação**
-
-| Modificador | Significado | Exemplo | Descrição |
-|-------------|-------------|---------|------------|
-| `asc` | **Ascendente** (padrão) | `$orderby=Nome asc` | Ordem crescente (A-Z, 1-9) |
-| `desc` | **Descendente** | `$orderby=Preco desc` | Ordem decrescente (Z-A, 9-1) |
-
+---
 
 ### Próximos passos sugeridos:
+- Definir e aplicar uma estrutura (DDD, MVC e etc ...)
 - Adicionar autenticação e autorização
+- Criar middleware global para capiturar erros da API
 - Implementar logging estruturado
 - Adicionar validações customizadas
 - Configurar Docker para containerização
 - Implementar cache com Redis
-- Adicionar documentação com Swagger/OpenAPI
+- Adicionar documentação com Swagger ou Redoc com OpenAPI
 
 ### Recursos úteis:
 - [Documentação OData](https://docs.microsoft.com/en-us/odata/)
@@ -1282,6 +972,7 @@ Seguindo este guia passo a passo, você terá criado uma API OData completa com:
 **Autor:** Weberson Rodrigues  
 **Data:** 02/09/2025  
 **Versão:** 1.0
+
 
 ===== ModelBinders ====
 
